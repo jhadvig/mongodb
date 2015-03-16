@@ -4,7 +4,10 @@
 source scl_source enable mongodb24
 set -e
 
-function usage {
+MAX_ATTEMPTS=60
+SLEEP_TIME=1
+
+function usage() {
 	echo "You must specify following environment variables:"
 	echo "  \$MONGODB_USER"
 	echo "  \$MONGODB_PASSWORD"
@@ -13,19 +16,45 @@ function usage {
 	exit 1
 }
 
-function create_mongodb_users {
+function up_test() {
+    for i in $(seq $MAX_ATTEMPTS); do
+        echo "=> Waiting for confirmation of MongoDB service startup"
+        set +e
+        mongo admin --eval "help"
+        status=$?
+        set -e
+        if [ $status -eq 0 ]; then
+            echo "=> MongoDB service has started"
+            return 0
+        fi
+        sleep $SLEEP_TIME
+    done
+    echo "=> Giving up: Failed to start MongoDB service"
+    exit 1
+}
+
+function down_test() {
+    for i in $(seq $MAX_ATTEMPTS); do
+        echo "=> Waiting till MongoDB service is stopped"
+        set +e
+        mongo admin --eval "help"
+        status=$?
+        set -e
+        if [ $status -ne 0 ]; then
+            echo "=> MongoDB service has stopped"
+            return 0
+        fi
+        sleep $SLEEP_TIME
+    done
+    echo "=> Giving up: Failed to stop MongoDB service"
+    exit 1
+}
+
+function create_mongodb_users() {
 	mongod -f /opt/openshift/etc/mongodb.conf &
 
 	# Check if the MongoDB daemon is up.
-	RC=1
-	while [[ RC -ne 0 ]]; do
-	    echo "=> Waiting for confirmation of MongoDB service startup"
-	    sleep 1
-	    set +e
-	    mongo admin --eval "help" >/dev/null 2>&1
-	    RC=$?
-	    set -e
-	done
+	up_test
 
 	# Make sure env variables don't propagate to mongod process.
 	mongo_user="$MONGODB_USER" ; unset MONGODB_USER
@@ -47,13 +76,7 @@ function create_mongodb_users {
 	touch /var/lib/mongodb/.mongodb_users_created
 
 	# Check if the MongoDB daemon is down.
-	while [[ RC -eq 0 ]]
-		sleep 1
-		set +e
-		mongo admin --eval "help" >/dev/null 2>&1
-		RC=$?
-		set -e
-	done
+	down_test
 }
 
 test -z "$MONGODB_USER" && usage
