@@ -25,11 +25,11 @@ cleanup() {
     done
     rmdir $CIDFILE_DIR
 }
-trap cleanup EXIT
+trap cleanup EXIT SIGINT
 
-get_cid () {
+get_cid() {
     local id="$1" ; shift || return 1
-    echo $(cat "$CIDFILE_DIR/$id")
+    echo -n $(cat "$CIDFILE_DIR/$id")
 }
 
 get_container_ip() {
@@ -99,7 +99,7 @@ run_tests() {
     local name=$1 ; shift
     envs="-e MONGODB_USER=$USER -e MONGODB_PASSWORD=$PASS -e MONGODB_DATABASE=$DB"
     if [ -v ADMIN_PASS ]; then
-        envs="$envs -e MONGODB_ADMIN_PASSWORD=$ADMIN_PASS"
+        envs+="$envs -e MONGODB_ADMIN_PASSWORD=$ADMIN_PASS"
     fi
     create_container $name $envs
     CONTAINER_IP=$(get_container_ip $name)

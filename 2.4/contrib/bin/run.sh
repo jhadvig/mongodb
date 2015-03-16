@@ -20,7 +20,7 @@ function create_mongodb_users {
 	RC=1
 	while [[ RC -ne 0 ]]; do
 	    echo "=> Waiting for confirmation of MongoDB service startup"
-	    sleep 2
+	    sleep 1
 	    set +e
 	    mongo admin --eval "help" >/dev/null 2>&1
 	    RC=$?
@@ -48,7 +48,7 @@ function create_mongodb_users {
 
 	# Check if the MongoDB daemon is down.
 	while [[ RC -eq 0 ]]
-		sleep 2
+		sleep 1
 		set +e
 		mongo admin --eval "help" >/dev/null 2>&1
 		RC=$?
