@@ -101,7 +101,7 @@
         "containers": [
           {
             "name": "initiate",
-            "image": "openshift/mongodb-24-centos7",
+            "image": "rhscl/rh-mongodb26-centos7",
             "args": ["initiate"],
             "env": [
               {
@@ -169,7 +169,7 @@
             "containers": [
               {
                 "name":  "member",
-                "image": "openshift/mongodb-24-centos7",
+                "image": "rhscl/rh-mongodb26-centos7",
                 "env": [
                   {
                     "name": "MONGODB_USER",

@@ -49,7 +49,7 @@ dirs=${VERSION:-$VERSIONS}
 
 for dir in ${dirs}; do
   if [ "$dir" == "2.6" ]; then
-    IMAGE_NAME=rhscl/rh-mongodb${dir//./}-${OS}
+    IMAGE_NAME=rhscl/rh-${BASE_DIR_NAME}${dir//./}-${OS}
   else
     IMAGE_NAME="${BASE_IMAGE_NAME}-${dir//./}-${OS}"
   fi
